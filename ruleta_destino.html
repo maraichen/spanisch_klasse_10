@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 La Ruleta del Destino</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, white, transparent),
+                radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 230px 80px, white, transparent),
+                radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 350px 50px, white, transparent),
+                radial-gradient(2px 2px at 420px 180px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 500px 90px, white, transparent),
+                radial-gradient(2px 2px at 580px 130px, rgba(255,255,255,0.9), transparent);
+            background-size: 600px 200px;
+            animation: twinkle 5s ease-in-out infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        header {
+            text-align: center;
+            padding: 1rem;
+            z-index: 10;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.3rem;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #b8b8b8;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+            gap: 3rem;
+            padding: 1rem 2rem;
+            z-index: 10;
+        }
+        
+        .left-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 420px;
+            height: 420px;
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), inset 0 0 50px rgba(0,0,0,0.3);
+        }
+        
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid gold;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+            z-index: 20;
+        }
+        
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #ffd700 0%, #b8860b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+            z-index: 15;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .center-circle:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .center-circle:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+        
+        .spin-btn {
+            padding: 0.8rem 2.5rem;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            border: none;
+            border-radius: 50px;
+            color: #1a1a2e;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s;
+        }
+        
+        .spin-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
+        }
+        
+        .spin-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .canvas-wheel {
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), 0 0 60px rgba(255, 215, 0, 0.1);
+        }
+        
+        .right-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 400px;
+            min-height: 350px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .result-waiting {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .result-waiting-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .result-waiting-text {
+            font-size: 1.3rem;
+            font-style: italic;
+        }
+        
+        .result {
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .result.show {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .result-emoji {
+            font-size: 6rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .result-category {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-instruction {
+            font-size: 1.2rem;
+            color: #b8b8b8;
+            max-width: 350px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    
+    <header>
+        <h1>🔮 La Ruleta del Destino</h1>
+        <p class="subtitle">¿Qué te deparará el futuro?</p>
+    </header>
+    
+    <div class="main-container">
+        <div class="left-side">
+            <div class="wheel-container">
+                <div class="pointer"></div>
+                <canvas id="wheel" class="canvas-wheel" width="420" height="420"></canvas>
+                <div class="center-circle" onclick="spin()">🔮</div>
+            </div>
+            <button class="spin-btn" onclick="spin()">¡GIRAR!</button>
+        </div>
+        
+        <div class="right-side">
+            <div class="result-waiting" id="resultWaiting">
+                <div class="result-waiting-icon">🌟</div>
+                <div class="result-waiting-text">¡Gira la ruleta para<br>descubrir tu destino!</div>
+            </div>
+            <div class="result" id="result">
+                <div class="result-emoji" id="resultEmoji">❓</div>
+                <div class="result-category" id="resultCategory">-</div>
+                <div class="result-instruction" id="resultInstruction">-</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const categories = [
+            { name: "TRABAJO", emoji: "💼", color: "#e74c3c", instruction: "Profetiza sobre su futuro profesional" },
+            { name: "AMOR", emoji: "❤️", color: "#e91e63", instruction: "Profetiza sobre su vida amorosa" },
+            { name: "VIAJES", emoji: "✈️", color: "#3498db", instruction: "Profetiza sobre sus viajes futuros" },
+            { name: "DINERO", emoji: "💰", color: "#f1c40f", instruction: "Profetiza sobre su fortuna" },
+            { name: "FAMILIA", emoji: "👨‍👩‍👧‍👦", color: "#2ecc71", instruction: "Profetiza sobre su vida familiar" },
+            { name: "SALUD", emoji: "💪", color: "#1abc9c", instruction: "Profetiza sobre su salud" },
+            { name: "FAMA", emoji: "⭐", color: "#9b59b6", instruction: "Profetiza sobre su fama y éxito" },
+            { name: "SUERTE", emoji: "🍀", color: "#27ae60", instruction: "Profetiza algo sorprendente" }
+        ];
+        
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = canvas.width / 2 - 5;
+        
+        let currentRotation = 0;
+        let isSpinning = false;
+        
+        function drawWheel() {
+            const segmentAngle = (2 * Math.PI) / categories.length;
+            
+            categories.forEach((cat, i) => {
+                const startAngle = i * segmentAngle + currentRotation;
+                const endAngle = startAngle + segmentAngle;
+                
+                // Draw segment
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = cat.color;
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Draw text only (no emoji)
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + segmentAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 20px Segoe UI';
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 3;
+                ctx.fillText(cat.name, radius - 20, 6);
+                ctx.restore();
+            });
+            
+            // Draw outer ring
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = 'gold';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+        }
+        
+        function spin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            
+            document.querySelector('.spin-btn').disabled = true;
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('resultWaiting').style.display = 'block';
+            
+            const spins = 5 + Math.random() * 5;
+            const extraDegrees = Math.random() * 360;
+            const totalRotation = spins * 360 + extraDegrees;
+            
+            const startRotation = currentRotation;
+            const targetRotation = startRotation + (totalRotation * Math.PI / 180);
+            const duration = 4000;
+            const startTime = performance.now();
+            
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const easeOut = 1 - Math.pow(1 - progress, 4);
+                
+                currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawWheel();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    document.querySelector('.spin-btn').disabled = false;
+                    showResult();
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        function showResult() {
+            const segmentAngle = 360 / categories.length;
+            const normalizedRotation = ((currentRotation * 180 / Math.PI) % 360 + 360) % 360;
+            const pointerAngle = (270 - normalizedRotation + 360) % 360;
+            const winningIndex = Math.floor(pointerAngle / segmentAngle);
+            
+            const winner = categories[winningIndex];
+            
+            document.getElementById('resultWaiting').style.display = 'none';
+            document.getElementById('resultEmoji').textContent = winner.emoji;
+            document.getElementById('resultCategory').textContent = winner.name;
+            document.getElementById('resultInstruction').textContent = winner.instruction;
+            document.getElementById('result').classList.add('show');
+        }
+        
+        // Initial draw
+        drawWheel();
+    </script>
+</body>
+</html>
