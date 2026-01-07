@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Vocabulario en Acción</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        @media (min-width: 600px) {
+            .menu {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .menu-btn {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            padding: 20px 15px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .menu-btn .icon {
+            font-size: 2em;
+        }
+        
+        .game-area {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            min-height: 400px;
+            display: none;
+        }
+        
+        .game-area.active {
+            display: block;
+        }
+        
+        .flashcard-container {
+            perspective: 1000px;
+            margin: 20px auto;
+            max-width: 500px;
+        }
+        
+        .flashcard {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: 500;
+        }
+        
+        .flashcard-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .flashcard-back {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-wrong { background: #ff6b6b; color: white; }
+        .btn-correct { background: #51cf66; color: white; }
+        .btn-next { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        
+        .control-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .quiz-question {
+            text-align: center;
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .quiz-option {
+            padding: 15px;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            text-align: center;
+        }
+        
+        .quiz-option:hover { border-color: #667eea; background: #f8f9ff; }
+        .quiz-option.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .quiz-option.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .memory-card {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            color: white;
+            padding: 5px;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-height: 70px;
+        }
+        
+        .memory-card.revealed { background: white; color: #333; border: 2px solid #667eea; }
+        .memory-card.matched { background: #51cf66; color: white; cursor: default; }
+        .memory-card .card-content { display: none; }
+        .memory-card.revealed .card-content, .memory-card.matched .card-content { display: block; }
+        .memory-card .card-back { font-size: 1.8em; }
+        .memory-card.revealed .card-back, .memory-card.matched .card-back { display: none; }
+        
+        .speed-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .speed-input:focus { outline: none; border-color: #764ba2; box-shadow: 0 0 15px rgba(102, 126, 234, 0.3); }
+        
+        .speed-feedback {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.2em;
+            min-height: 30px;
+        }
+        
+        .speed-feedback.correct { color: #28a745; }
+        .speed-feedback.wrong { color: #dc3545; }
+        
+        .score-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .score { font-size: 1.1em; font-weight: bold; color: #667eea; }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .timer { font-size: 1.8em; text-align: center; color: #667eea; margin-bottom: 20px; }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 1em;
+        }
+        
+        .back-btn:hover { background: #5a6268; }
+        
+        .results { text-align: center; padding: 40px 20px; }
+        .results h2 { font-size: 2em; color: #667eea; margin-bottom: 20px; }
+        .results .final-score { font-size: 3em; color: #51cf66; margin-bottom: 20px; }
+        .results p { font-size: 1.2em; color: #666; margin-bottom: 30px; }
+        
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+        
+        .restart-btn:hover { transform: scale(1.05); }
+        
+        .lang-indicator { text-align: center; font-size: 0.9em; color: #999; margin-top: 10px; }
+        .lang-indicator span { background: #f0f0f0; padding: 5px 15px; border-radius: 20px; }
+        
+        .hint-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin-top: 15px;
+            font-size: 0.95em;
+            color: #856404;
+        }
+        
+        /* Hangman */
+        .hangman-container { text-align: center; }
+        .hangman-drawing { font-size: 3em; margin: 20px 0; min-height: 80px; }
+        .hangman-word { font-size: 2em; letter-spacing: 10px; margin: 25px 0; font-family: monospace; color: #333; }
+        .hangman-hint { color: #666; font-size: 1.1em; margin-bottom: 20px; padding: 10px; background: #f0f0f0; border-radius: 10px; }
+        .hangman-keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 500px; margin: 0 auto; }
+        .key-btn {
+            width: 40px; height: 45px; border: none; border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; font-size: 1.1em; cursor: pointer; transition: all 0.2s;
+        }
+        .key-btn:hover:not(:disabled) { transform: scale(1.1); }
+        .key-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .key-btn.correct { background: #51cf66; }
+        .key-btn.wrong { background: #ff6b6b; }
+        
+        /* Duel */
+        .duel-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .duel-player { padding: 20px; border-radius: 20px; text-align: center; }
+        .duel-player.player1 { background: linear-gradient(135deg, #667eea33 0%, #764ba233 100%); border: 3px solid #667eea; }
+        .duel-player.player2 { background: linear-gradient(135deg, #f093fb33 0%, #f5576c33 100%); border: 3px solid #f5576c; }
+        .duel-player h3 { font-size: 1.3em; margin-bottom: 15px; }
+        .duel-player.player1 h3 { color: #667eea; }
+        .duel-player.player2 h3 { color: #f5576c; }
+        .duel-score { font-size: 3em; font-weight: bold; margin: 10px 0; }
+        .duel-player.player1 .duel-score { color: #667eea; }
+        .duel-player.player2 .duel-score { color: #f5576c; }
+        .duel-buzz { width: 100%; padding: 30px; font-size: 1.5em; border: none; border-radius: 15px; cursor: pointer; margin-top: 15px; transition: all 0.2s; }
+        .duel-player.player1 .duel-buzz { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .duel-player.player2 .duel-buzz { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .duel-buzz:hover { transform: scale(1.05); }
+        .duel-buzz:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .duel-question { text-align: center; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; font-size: 1.4em; margin-bottom: 20px; }
+        .duel-answer-section { display: none; margin-top: 20px; }
+        .duel-answer-section.active { display: block; }
+        .duel-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .duel-active { animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        
+        /* Scramble */
+        .scramble-word { font-size: 2.2em; text-align: center; letter-spacing: 8px; margin: 30px 0; color: #667eea; font-weight: bold; font-family: monospace; }
+        .scramble-input { width: 100%; padding: 15px; font-size: 1.3em; border: 3px solid #667eea; border-radius: 15px; text-align: center; }
+        .scramble-input:focus { outline: none; border-color: #764ba2; }
+        
+        /* Cloze */
+        .cloze-container { max-width: 800px; margin: 0 auto; }
+        .cloze-text { font-size: 1.15em; line-height: 2.2; padding: 20px; background: #f8f9fa; border-radius: 15px; margin-bottom: 25px; }
+        .cloze-gap { display: inline-block; min-width: 120px; border-bottom: 3px solid #667eea; text-align: center; margin: 0 5px; padding: 5px 10px; cursor: pointer; background: white; border-radius: 5px; transition: all 0.2s; }
+        .cloze-gap:hover { background: #e8ecff; }
+        .cloze-gap.filled { background: #667eea; color: white; border-color: #667eea; }
+        .cloze-gap.correct { background: #51cf66; border-color: #51cf66; }
+        .cloze-gap.wrong { background: #ff6b6b; border-color: #ff6b6b; }
+        .cloze-gap.selected { background: #ffd43b; border-color: #fab005; color: #333; }
+        .cloze-wordbank { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 20px; background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border-radius: 15px; margin-bottom: 20px; }
+        .cloze-wordbank h4 { width: 100%; text-align: center; margin-bottom: 10px; color: #667eea; }
+        .cloze-word { padding: 10px 20px; background: white; border: 2px solid #667eea; border-radius: 25px; cursor: pointer; transition: all 0.2s; font-size: 1em; }
+        .cloze-word:hover:not(.used) { background: #667eea; color: white; }
+        .cloze-word.selected { background: #ffd43b; border-color: #fab005; }
+        .cloze-word.used { background: #e0e0e0; border-color: #ccc; color: #999; cursor: not-allowed; text-decoration: line-through; }
+        .cloze-check-btn { display: block; width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 15px; font-size: 1.2em; cursor: pointer; margin-top: 20px; }
+        .cloze-check-btn:hover { transform: scale(1.02); }
+        .cloze-nav { display: flex; justify-content: space-between; margin-top: 20px; }
+        .cloze-nav-btn { padding: 10px 25px; border: none; border-radius: 20px; cursor: pointer; font-size: 1em; }
+        .cloze-nav-btn.prev { background: #6c757d; color: white; }
+        .cloze-nav-btn.next { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .cloze-progress { text-align: center; color: #666; margin-top: 15px; }
+        
+        @media (max-width: 600px) {
+            .menu { grid-template-columns: repeat(2, 1fr); }
+            .quiz-options, .duel-options { grid-template-columns: 1fr; }
+            .memory-grid { grid-template-columns: repeat(3, 1fr); }
+            header h1 { font-size: 1.6em; }
+            .duel-container { grid-template-columns: 1fr; }
+            .hangman-word { font-size: 1.5em; letter-spacing: 6px; }
+            .key-btn { width: 32px; height: 38px; font-size: 0.9em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Vocabulario en Acción</h1>
+            <p>Libro 3 unidad 1: Todos juntos</p>
+        </header>
+        
+        <div class="menu" id="mainMenu">
+            <button class="menu-btn" onclick="startGame('flashcards')"><span class="icon">🃏</span><span>Fichas</span></button>
+            <button class="menu-btn" onclick="startGame('quiz')"><span class="icon">❓</span><span>Quiz</span></button>
+            <button class="menu-btn" onclick="startGame('memory')"><span class="icon">🧠</span><span>Memory</span></button>
+            <button class="menu-btn" onclick="startGame('speed')"><span class="icon">⚡</span><span>Velocidad</span></button>
+            <button class="menu-btn" onclick="startGame('hangman')"><span class="icon">🎯</span><span>Ahorcado</span></button>
+            <button class="menu-btn" onclick="startGame('scramble')"><span class="icon">🔀</span><span>Letras</span></button>
+            <button class="menu-btn" onclick="startGame('duel')"><span class="icon">🏆</span><span>Duelo</span></button>
+            <button class="menu-btn" onclick="startGame('cloze')"><span class="icon">📝</span><span>Textos</span></button>
+        </div>
+        
+        <!-- Flashcards -->
+        <div class="game-area" id="flashcardsGame">
+            <button class="back-btn" onclick="backToMenu()">← Menú</button>
+            <div class="score-display">
+                <span class="score">Tarjeta: <span id="flashcardCurrent">1</span>/<span id="flashcardTotal">10</span></span>
+                <span class="score">✓ <span id="flashcardCorrect">0</span> | ✗ <span id="flashcardWrong">0</span></span>
+            </div>
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard" onclick="flipCard()">
+                    <div class="flashcard-front" id="flashcardFront">Cargando...</div>
+                    <div class="flashcard-back" id="flashcardBack">Cargando...</div>
+                </div>
+            </div>
+            <div class="lang-indicator"><span id="flashcardLang">ES → DE</span></div>
+            <div class="flashcard-controls">
+                <button class="control-btn btn-wrong" onclick="flashcardAnswer(false)">✗ No lo sabía</button>
+                <button class="control-btn btn-correct" onclick="flashcardAnswer(true)">✓ ¡Lo sabía!</button>
+            </div>
+        </div>
+        
+        <!-- Quiz -->
+        <div class="game-area" id="quizGame">
+            <button class="back-btn" onclick="backToMenu()">← Menú</button>
+            <div class="score-display">
+                <span class="score">Pregunta: <span id="quizCurrent">1</span>/10</span>
+                <span class="score">Puntos: <span id="quizScore">0</span></span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="quizProgress"></div></div>
+            <div class="quiz-question" id="quizQuestion">Cargando...</div>
+            <div class="lang-indicator"><span id="quizLang">ES → DE</span></div>
+            <div class="quiz-options" id="quizOptions"></div>
+        </div>
+        
+        <!-- Memory -->
+        <div class="game-area" id="memoryGame">
+            <button class="back-btn" onclick="backToMenu()">← Menú</button>
+            <div class="score-display">
+                <span class="score">Parejas: <span id="memoryPairs">0</span>/6</span>
+                <span class="score">Intentos: <span id="memoryAttempts">0</span></span>
+            </div>
+            <div class="memory-grid" id="memoryGrid"></div>
+        </div>
+        
+        <!-- Speed -->
+        <div class="game-area" id="speedGame">
+            <button class="back-btn" onclick="backToMenu()">← Menú</button>
+            <div class="score-display">
+                <span class="score">Palabra: <span id="speedCurrent">1</span>/10</span>
+                <span class="score">Puntos: <span id="speedScore">0</span></span>
+            </div>
+            <div class="timer" id="speedTimer">⏱️ 0:00</div>
+            <div class="quiz-question" id="speedQuestion">Cargando...</div>
+            <div class="lang-indicator"><span id="speedLang">DE → ES</span></div>
+            <input type="text" class="speed-input" id="speedInput" placeholder="Escribe la traducción..." autocomplete="off">
+            <div class="speed-feedback" id="speedFeedback"></div>
+            <div class="hint-box" id="speedHint" style="display: none;"></div>
+        </div>
+        
+        <!-- Hangman -->
+        <div class="game-area" id="hangmanGame">
+            <button class="back-btn" onclick="backToMenu()">← Menú</button>
+            <div class="score-display">
+                <span class="score">Palabra: <span id="hangmanCurrent">1</span>/8</span>
+                <span class="score">Puntos: <span id="hangmanScore">0</span></span>
+            </div>
+            <div class="hangman-container">
+                <div class="hangman-drawing" id="hangmanDrawing">😊</div>
+                <div class="hangman-hint" id="hangmanHint">Pista: ...</div>
+                <div class="hangman-word" id="hangmanWord">_ _ _ _ _</div>
+                <div class="hangman-keyboard" id="hangmanKeyboard"></div>
+            </div>
+        </div>
+        
+        <!-- Scramble -->
+        <div class="game-area" id="scrambleGame">
+            <button class="back-btn" onclick="backToMenu()">← Menú</button>
+            <div class="score-display">
+                <span class="score">Palabra: <span id="scrambleCurrent">1</span>/10</span>
+                <span class="score">Puntos: <span id="scrambleScore">0</span></span>
+            </div>
+            <div class="quiz-question" id="scrambleHint">Pista: ...</div>
+            <div class="scramble-word" id="scrambleWord">LETRSA</div>
+            <input type="text" class="scramble-input" id="scrambleInput" placeholder="Escribe la palabra correcta..." autocomplete="off">
+            <div class="speed-feedback" id="scrambleFeedback"></div>
+        </div>
+        
+        <!-- Duel -->
+        <div class="game-area" id="duelGame">
+            <button class="back-btn" onclick="backToMenu()">← Menú</button>
+            <div class="score-display"><span class="score">Ronda: <span id="duelRound">1</span>/10</span></div>
+            <div class="duel-question" id="duelQuestion">¿Preparados?</div>
+            <div class="lang-indicator"><span id="duelLang">ES → DE</span></div>
+            <div class="duel-container">
+                <div class="duel-player player1">
+                    <h3>👤 Jugador 1</h3>
+                    <div class="duel-score" id="duelScore1">0</div>
+                    <button class="duel-buzz" id="buzz1" onclick="duelBuzz(1)">🔔 ¡BUZZ!</button>
+                </div>
+                <div class="duel-player player2">
+                    <h3>👤 Jugador 2</h3>
+                    <div class="duel-score" id="duelScore2">0</div>
+                    <button class="duel-buzz" id="buzz2" onclick="duelBuzz(2)">🔔 ¡BUZZ!</button>
+                </div>
+            </div>
+            <div class="duel-answer-section" id="duelAnswerSection">
+                <p style="text-align: center; margin-bottom: 15px; font-size: 1.1em;"><span id="duelActivePlayer">Jugador 1</span>, elige la respuesta:</p>
+                <div class="duel-options" id="duelOptions"></div>
+            </div>
+        </div>
+        
+        <!-- Cloze -->
+        <div class="game-area" id="clozeGame">
+            <button class="back-btn" onclick="backToMenu()">← Menú</button>
+            <div class="cloze-container">
+                <div class="score-display">
+                    <span class="score">Texto: <span id="clozeTextNum">1</span>/5</span>
+                    <span class="score">Correctas: <span id="clozeCorrect">0</span></span>
+                </div>
+                <div class="cloze-wordbank" id="clozeWordbank"><h4>📚 Banco de palabras</h4></div>
+                <div class="cloze-text" id="clozeText"></div>
+                <button class="cloze-check-btn" id="clozeCheckBtn" onclick="checkCloze()">✓ Comprobar respuestas</button>
+                <div class="cloze-nav">
+                    <button class="cloze-nav-btn prev" onclick="prevClozeText()">← Anterior</button>
+                    <button class="cloze-nav-btn next" onclick="nextClozeText()">Siguiente →</button>
+                </div>
+                <div class="cloze-progress" id="clozeProgress"></div>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="game-area" id="resultsScreen">
+            <div class="results">
+                <h2>🎉 ¡Terminado!</h2>
+                <div class="final-score" id="finalScore">0%</div>
+                <p id="resultsMessage">¡Buen trabajo!</p>
+                <button class="restart-btn" onclick="backToMenu()">Volver al menú</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =====================================================
+        // VOCABULARIO - NUR UNIDAD 1, BAND 3 (Seiten 185-187)
+        // EXAKT AUS DEM BUCH - KEINE ANDEREN WÖRTER!
+        // =====================================================
+        const vocabulary = [
+            // === PRIMER PASO (Seite 185) ===
+            { es: "el acceso", de: "der Zugang" },
+            { es: "acceder a algo", de: "Zugang zu etw. haben" },
+            { es: "el ascensor", de: "der Aufzug" },
+            { es: "el balón", de: "der (Fuß)Ball" },
+            { es: "la dificultad", de: "die Schwierigkeit" },
+            { es: "la escalera", de: "die Treppe" },
+            { es: "la lengua de signos", de: "die Gebärdensprache" },
+            { es: "la lengua", de: "die Sprache" },
+            { es: "el obstáculo", de: "das Hindernis" },
+            { es: "la portería", de: "das Tor" },
+            { es: "la venda", de: "die Augenbinde" },
+            { es: "justo", de: "gerecht" },
+            { es: "injusto", de: "ungerecht" },
+            { es: "el prejuicio", de: "das Vorurteil" },
+            { es: "superar algo", de: "etw. überwinden" },
+            { es: "igual", de: "gleich" },
+            { es: "la igualdad", de: "die Gleichheit" },
+            { es: "cualquier", de: "irgendein" },
+            { es: "juzgar", de: "beurteilen" },
+            { es: "la capacidad", de: "die Fähigkeit" },
+            { es: "el objetivo", de: "das Ziel" },
+            { es: "el campeonato", de: "die Meisterschaft" },
+            { es: "el campeón", de: "der Meister" },
+            { es: "la campeona", de: "die Meisterin" },
+            { es: "los Juegos Paralímpicos", de: "die Paralympics" },
+            { es: "el juego", de: "das Spiel" },
+            { es: "orgulloso", de: "stolz" },
+            { es: "demostrar", de: "zeigen" },
+            { es: "mostrar", de: "zeigen" },
+            { es: "impedir", de: "verhindern" },
+            { es: "integrarse", de: "sich integrieren" },
+            { es: "invisible", de: "unsichtbar" },
+            { es: "ciego", de: "blind" },
+            { es: "sordo", de: "taub" },
+            
+            // === BLOQUE A (Seite 186) ===
+            { es: "la edad", de: "das Alter" },
+            { es: "la ilusión", de: "der Wunsch" },
+            { es: "adaptado", de: "angepasst" },
+            { es: "la razón", de: "der Grund" },
+            { es: "por esa razón", de: "aus diesem Grund" },
+            { es: "el resto", de: "der Rest" },
+            { es: "capaz", de: "fähig" },
+            { es: "el deseo", de: "der Wunsch" },
+            { es: "desear", de: "wünschen" },
+            { es: "principal", de: "Haupt-" },
+            { es: "principalmente", de: "hauptsächlich" },
+            { es: "la traba", de: "das Hindernis" },
+            { es: "continuar", de: "fortsetzen" },
+            { es: "el entorno", de: "die Umgebung" },
+            { es: "de manera diferente", de: "anders" },
+            { es: "el derecho", de: "das Recht" },
+            { es: "duro", de: "hart" },
+            { es: "indiferente", de: "gleichgültig" },
+            { es: "parecido", de: "ähnlich" },
+            { es: "parecerse a", de: "ähneln" },
+            { es: "el cortometraje", de: "der Kurzfilm" },
+            { es: "el argumento", de: "die Handlung" },
+            { es: "la acción", de: "die Handlung" },
+            { es: "tener lugar", de: "stattfinden" },
+            { es: "el protagonista", de: "die Hauptfigur" },
+            { es: "el personaje", de: "die Figur" },
+            { es: "la escena", de: "die Szene" },
+            { es: "la atmósfera", de: "die Atmosphäre" },
+            { es: "positivo", de: "positiv" },
+            { es: "negativo", de: "negativ" },
+            { es: "el plano", de: "die Kameraeinstellung" },
+            { es: "criticar", de: "kritisieren" },
+            { es: "la obra", de: "das Werk" },
+            { es: "comunicar", de: "mitteilen" },
+            { es: "la comunicación", de: "die Kommunikation" },
+            { es: "comunicarse con", de: "kommunizieren mit" },
+            { es: "comunicativo", de: "kontaktfreudig" },
+            { es: "la intención", de: "die Absicht" },
+            { es: "la meta", de: "das Ziel" },
+            
+            // === BLOQUE B (Seite 187) ===
+            { es: "entero", de: "ganz" },
+            { es: "el trozo", de: "das Stück" },
+            { es: "anoche", de: "gestern Abend" },
+            { es: "la belleza", de: "die Schönheit" },
+            { es: "tocar", de: "berühren" },
+            { es: "cerrar", de: "schließen" },
+            { es: "ponerse rojo", de: "rot werden" },
+            { es: "la imaginación", de: "die Fantasie" },
+            { es: "gracias a", de: "dank" },
+            { es: "equivocarse", de: "sich irren" },
+            { es: "el lado", de: "die Seite" },
+            { es: "al lado de", de: "neben" },
+            { es: "por un lado", de: "einerseits" },
+            { es: "por otro lado", de: "andererseits" },
+            { es: "la cabeza", de: "der Kopf" },
+            { es: "querer", de: "lieben" },
+            { es: "querido", de: "geliebt" },
+            { es: "extraño", de: "seltsam" },
+            { es: "el dios", de: "der Gott" },
+            { es: "la diosa", de: "die Göttin" },
+            { es: "curar", de: "heilen" },
+            { es: "el rato", de: "die Weile" },
+            { es: "no importarle a alguien", de: "jdm nichts ausmachen" },
+            { es: "la muerte", de: "der Tod" },
+            { es: "sentir sueño", de: "müde werden" },
+            { es: "el sueño", de: "der Traum" },
+            { es: "el brazo", de: "der Arm" },
+            { es: "la luz", de: "das Licht" },
+            { es: "hacer daño a alguien", de: "jdm wehtun" }
+        ];
+
+        // Lückentexte NUR mit Unidad 1 Vokabeln
+        const clozeTexts = [
+            {
+                title: "Los Juegos Paralímpicos",
+                text: "Ayer vi [1] en la televisión. Los atletas demostraron mucha [2] para superar todos los [3]. Un nadador [4] ganó la medalla de oro. Estaba muy [5] de su victoria. Su [6] era llegar a ser [7]. [8] su [9], logró su sueño. Es un ejemplo de [10].",
+                gaps: { 1: "los Juegos Paralímpicos", 2: "capacidad", 3: "obstáculos", 4: "ciego", 5: "orgulloso", 6: "objetivo", 7: "campeón", 8: "Gracias a", 9: "entorno", 10: "igualdad" }
+            },
+            {
+                title: "Un cortometraje especial",
+                text: "Ayer vi un [1] muy interesante. [2] es una chica [3]. El [4] trataba sobre los derechos de las personas con discapacidad. La [5] era muy emotiva. En una [6] importante, la protagonista dijo que tenemos [7] a ser tratados con respeto. La [8] de la película era [9]. Al final, me hizo pensar sobre mis [10].",
+                gaps: { 1: "cortometraje", 2: "La protagonista", 3: "sorda", 4: "argumento", 5: "atmósfera", 6: "escena", 7: "el derecho", 8: "intención", 9: "positiva", 10: "prejuicios" }
+            },
+            {
+                title: "Mis deseos para el futuro",
+                text: "Tengo muchos [1] para el futuro. Mi [2] [3] es ayudar a las personas. A veces la gente me dice que es [4] conseguirlo, pero yo no me rindo. Por [5] tengo miedo, pero [6] tengo mucha [7]. Mi [8] es [9] todas las [10] de la vida.",
+                gaps: { 1: "deseos", 2: "ilusión", 3: "principal", 4: "duro", 5: "un lado", 6: "por otro lado", 7: "capacidad", 8: "meta", 9: "superar", 10: "dificultades" }
+            },
+            {
+                title: "El nuevo compañero",
+                text: "Llegó un chico nuevo a clase. Al principio parecía [1]. [2] no hablaba con nadie. Pero después empezó a [3] con nosotros. [4] que todos somos [5]. No debemos [6] a nadie. Él [7] ser muy [8]. [9] su ayuda, ahora entiendo mejor las matemáticas. Es un [10] ejemplo de amistad.",
+                gaps: { 1: "extraño", 2: "Anoche", 3: "comunicarse", 4: "Demostró", 5: "iguales", 6: "juzgar", 7: "resultó", 8: "comunicativo", 9: "Gracias a", 10: "entero" }
+            },
+            {
+                title: "La obra de teatro",
+                text: "Ayer vimos una [1] de teatro sobre la inclusión. [2] principal era un chico en silla de ruedas. La [3] era muy [4]. En cada [5], el público podía ver los [6] que él tenía que superar. Al final, el chico [7] que todos tenemos la misma [8] de ser felices. La [9] de la obra era [10].",
+                gaps: { 1: "obra", 2: "El personaje", 3: "atmósfera", 4: "positiva", 5: "escena", 6: "obstáculos", 7: "demostró", 8: "capacidad", 9: "intención", 10: "comunicar" }
+            }
+        ];
+
+        // Robuste Shuffle-Funktion
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+        
+        function createShuffledOptions(correctAnswer, pool, count = 4) {
+            let wrongAnswers = [];
+            const shuffledPool = shuffle(pool);
+            for (let item of shuffledPool) {
+                if (item !== correctAnswer && !wrongAnswers.includes(item)) {
+                    wrongAnswers.push(item);
+                    if (wrongAnswers.length >= count - 1) break;
+                }
+            }
+            const randomPosition = Math.floor(Math.random() * count);
+            let options = [...wrongAnswers];
+            options.splice(randomPosition, 0, correctAnswer);
+            return shuffle(options);
+        }
+
+        let currentGame = null;
+        let gameData = {};
+
+        function startGame(game) {
+            document.getElementById('mainMenu').style.display = 'none';
+            currentGame = game;
+            switch(game) {
+                case 'flashcards': initFlashcards(); break;
+                case 'quiz': initQuiz(); break;
+                case 'memory': initMemory(); break;
+                case 'speed': initSpeed(); break;
+                case 'hangman': initHangman(); break;
+                case 'scramble': initScramble(); break;
+                case 'duel': initDuel(); break;
+                case 'cloze': initCloze(); break;
+            }
+        }
+
+        function backToMenu() {
+            document.querySelectorAll('.game-area').forEach(el => el.classList.remove('active'));
+            document.getElementById('mainMenu').style.display = 'grid';
+            currentGame = null;
+            if (gameData.timer) clearInterval(gameData.timer);
+        }
+
+        function showResults(score, total, message) {
+            document.querySelectorAll('.game-area').forEach(el => el.classList.remove('active'));
+            document.getElementById('resultsScreen').classList.add('active');
+            document.getElementById('finalScore').textContent = Math.round((score / total) * 100) + '%';
+            document.getElementById('resultsMessage').textContent = message;
+        }
+
+        // FLASHCARDS
+        function initFlashcards() {
+            document.getElementById('flashcardsGame').classList.add('active');
+            gameData = { cards: shuffle(vocabulary).slice(0, 15), current: 0, correct: 0, wrong: 0 };
+            showFlashcard();
+        }
+
+        function showFlashcard() {
+            const card = gameData.cards[gameData.current];
+            document.getElementById('flashcard').classList.remove('flipped');
+            const direction = Math.random() > 0.5;
+            document.getElementById('flashcardFront').textContent = direction ? card.es : card.de;
+            document.getElementById('flashcardBack').textContent = direction ? card.de : card.es;
+            document.getElementById('flashcardLang').textContent = direction ? '🇪🇸 → 🇩🇪' : '🇩🇪 → 🇪🇸';
+            document.getElementById('flashcardCurrent').textContent = gameData.current + 1;
+            document.getElementById('flashcardTotal').textContent = gameData.cards.length;
+            document.getElementById('flashcardCorrect').textContent = gameData.correct;
+            document.getElementById('flashcardWrong').textContent = gameData.wrong;
+        }
+
+        function flipCard() { document.getElementById('flashcard').classList.toggle('flipped'); }
+
+        function flashcardAnswer(correct) {
+            if (correct) gameData.correct++; else gameData.wrong++;
+            gameData.current++;
+            if (gameData.current >= gameData.cards.length) {
+                showResults(gameData.correct, gameData.cards.length, gameData.correct >= 12 ? '¡Excelente! 🌟' : gameData.correct >= 8 ? '¡Muy bien! 👍' : '¡Sigue practicando! 💪');
+            } else { showFlashcard(); }
+        }
+
+        // QUIZ
+        function initQuiz() {
+            document.getElementById('quizGame').classList.add('active');
+            gameData = { questions: shuffle(vocabulary).slice(0, 10), current: 0, score: 0, answered: false };
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            gameData.answered = false;
+            const q = gameData.questions[gameData.current];
+            const direction = Math.random() > 0.5;
+            const questionText = direction ? q.es : q.de;
+            const correctAnswer = direction ? q.de : q.es;
+            document.getElementById('quizQuestion').textContent = questionText;
+            document.getElementById('quizLang').textContent = direction ? '🇪🇸 → 🇩🇪' : '🇩🇪 → 🇪🇸';
+            document.getElementById('quizCurrent').textContent = gameData.current + 1;
+            document.getElementById('quizScore').textContent = gameData.score;
+            document.getElementById('quizProgress').style.width = ((gameData.current) / 10 * 100) + '%';
+            
+            const pool = direction ? vocabulary.map(v => v.de) : vocabulary.map(v => v.es);
+            const options = createShuffledOptions(correctAnswer, pool, 4);
+            gameData.correctAnswer = correctAnswer;
+            
+            const container = document.getElementById('quizOptions');
+            container.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = opt;
+                btn.onclick = () => checkQuizAnswer(btn, opt);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(btn, answer) {
+            if (gameData.answered) return;
+            gameData.answered = true;
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                if (opt.textContent === gameData.correctAnswer) opt.classList.add('correct');
+                else if (opt === btn) opt.classList.add('wrong');
+            });
+            if (answer === gameData.correctAnswer) { gameData.score++; document.getElementById('quizScore').textContent = gameData.score; }
+            setTimeout(() => {
+                gameData.current++;
+                if (gameData.current >= 10) {
+                    showResults(gameData.score, 10, gameData.score >= 9 ? '¡Perfecto! 🏆' : gameData.score >= 7 ? '¡Muy bien! 🌟' : '¡Sigue practicando! 💪');
+                } else { showQuizQuestion(); }
+            }, 1200);
+        }
+
+        // MEMORY
+        function initMemory() {
+            document.getElementById('memoryGame').classList.add('active');
+            const selected = shuffle(vocabulary).slice(0, 6);
+            let cards = [];
+            selected.forEach((v, i) => {
+                cards.push({ id: i, type: 'es', text: v.es, pairId: i });
+                cards.push({ id: i + 6, type: 'de', text: v.de, pairId: i });
+            });
+            gameData = { cards: shuffle(cards), flipped: [], matched: 0, attempts: 0, locked: false };
+            renderMemoryGrid();
+        }
+
+        function renderMemoryGrid() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            gameData.cards.forEach((card, index) => {
+                const div = document.createElement('div');
+                div.className = 'memory-card';
+                div.innerHTML = `<span class="card-back">❓</span><span class="card-content">${card.text}</span>`;
+                div.onclick = () => flipMemoryCard(index);
+                grid.appendChild(div);
+            });
+            document.getElementById('memoryPairs').textContent = gameData.matched;
+            document.getElementById('memoryAttempts').textContent = gameData.attempts;
+        }
+
+        function flipMemoryCard(index) {
+            if (gameData.locked) return;
+            const cards = document.querySelectorAll('.memory-card');
+            const card = cards[index];
+            if (card.classList.contains('revealed') || card.classList.contains('matched')) return;
+            if (gameData.flipped.length >= 2) return;
+            card.classList.add('revealed');
+            gameData.flipped.push({ index, card: gameData.cards[index] });
+            if (gameData.flipped.length === 2) {
+                gameData.attempts++;
+                document.getElementById('memoryAttempts').textContent = gameData.attempts;
+                gameData.locked = true;
+                const [first, second] = gameData.flipped;
+                if (first.card.pairId === second.card.pairId && first.card.type !== second.card.type) {
+                    setTimeout(() => {
+                        cards[first.index].classList.add('matched');
+                        cards[second.index].classList.add('matched');
+                        gameData.matched++;
+                        document.getElementById('memoryPairs').textContent = gameData.matched;
+                        gameData.flipped = [];
+                        gameData.locked = false;
+                        if (gameData.matched === 6) {
+                            setTimeout(() => showResults(6, 6, gameData.attempts <= 10 ? '¡Memoria increíble! 🧠' : '¡Buen trabajo! 👍'), 500);
+                        }
+                    }, 300);
+                } else {
+                    setTimeout(() => {
+                        cards[first.index].classList.remove('revealed');
+                        cards[second.index].classList.remove('revealed');
+                        gameData.flipped = [];
+                        gameData.locked = false;
+                    }, 1000);
+                }
+            }
+        }
+
+        // SPEED
+        function initSpeed() {
+            document.getElementById('speedGame').classList.add('active');
+            gameData = { words: shuffle(vocabulary).slice(0, 10), current: 0, score: 0, startTime: Date.now(), timer: null };
+            gameData.timer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - gameData.startTime) / 1000);
+                document.getElementById('speedTimer').textContent = `⏱️ ${Math.floor(elapsed / 60)}:${(elapsed % 60).toString().padStart(2, '0')}`;
+            }, 1000);
+            const input = document.getElementById('speedInput');
+            input.value = '';
+            input.focus();
+            input.oninput = checkSpeedAnswer;
+            showSpeedWord();
+        }
+
+        function showSpeedWord() {
+            const word = gameData.words[gameData.current];
+            document.getElementById('speedQuestion').textContent = word.de;
+            document.getElementById('speedCurrent').textContent = gameData.current + 1;
+            document.getElementById('speedScore').textContent = gameData.score;
+            document.getElementById('speedFeedback').textContent = '';
+            document.getElementById('speedFeedback').className = 'speed-feedback';
+            document.getElementById('speedHint').style.display = 'none';
+            gameData.currentAnswer = word.es.toLowerCase().trim();
+            document.getElementById('speedInput').value = '';
+            document.getElementById('speedInput').focus();
+            gameData.hintTimeout = setTimeout(() => {
+                document.getElementById('speedHint').textContent = '💡 Pista: ' + word.es.substring(0, 3) + '...';
+                document.getElementById('speedHint').style.display = 'block';
+            }, 10000);
+        }
+
+        function checkSpeedAnswer() {
+            const userAnswer = document.getElementById('speedInput').value.toLowerCase().trim();
+            if (userAnswer === gameData.currentAnswer) {
+                clearTimeout(gameData.hintTimeout);
+                gameData.score++;
+                document.getElementById('speedScore').textContent = gameData.score;
+                document.getElementById('speedFeedback').textContent = '✓ ¡Correcto!';
+                document.getElementById('speedFeedback').className = 'speed-feedback correct';
+                setTimeout(() => {
+                    gameData.current++;
+                    if (gameData.current >= 10) {
+                        clearInterval(gameData.timer);
+                        showResults(gameData.score, 10, gameData.score >= 9 ? '¡Velocidad increíble! ⚡' : '¡Buen intento! 💪');
+                    } else { showSpeedWord(); }
+                }, 800);
+            }
+        }
+
+        // HANGMAN
+        const hangmanStages = ['😊', '😐', '😟', '😨', '😰', '😱', '💀'];
+        
+        function initHangman() {
+            document.getElementById('hangmanGame').classList.add('active');
+            gameData = { words: shuffle(vocabulary).slice(0, 8), current: 0, score: 0, errors: 0, guessed: [], maxErrors: 6 };
+            showHangmanWord();
+            createKeyboard();
+        }
+
+        function showHangmanWord() {
+            const word = gameData.words[gameData.current];
+            gameData.currentWord = word.es.toLowerCase().replace(/[^a-záéíóúüñ]/g, '');
+            gameData.errors = 0;
+            gameData.guessed = [];
+            document.getElementById('hangmanHint').textContent = '🇩🇪 ' + word.de;
+            document.getElementById('hangmanDrawing').textContent = hangmanStages[0];
+            document.getElementById('hangmanCurrent').textContent = gameData.current + 1;
+            document.getElementById('hangmanScore').textContent = gameData.score;
+            updateHangmanDisplay();
+            resetKeyboard();
+        }
+
+        function updateHangmanDisplay() {
+            let display = '';
+            for (let char of gameData.currentWord) {
+                display += gameData.guessed.includes(char) ? char.toUpperCase() + ' ' : '_ ';
+            }
+            document.getElementById('hangmanWord').textContent = display.trim();
+        }
+
+        function createKeyboard() {
+            const keyboard = document.getElementById('hangmanKeyboard');
+            keyboard.innerHTML = '';
+            'ABCDEFGHIJKLMNÑOPQRSTUVWXYZÁÉÍÓÚÜ'.split('').forEach(letter => {
+                const btn = document.createElement('button');
+                btn.className = 'key-btn';
+                btn.textContent = letter;
+                btn.onclick = () => guessLetter(letter.toLowerCase(), btn);
+                keyboard.appendChild(btn);
+            });
+        }
+
+        function resetKeyboard() {
+            document.querySelectorAll('.key-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('correct', 'wrong');
+            });
+        }
+
+        function guessLetter(letter, btn) {
+            if (gameData.guessed.includes(letter)) return;
+            gameData.guessed.push(letter);
+            btn.disabled = true;
+            
+            if (gameData.currentWord.includes(letter)) {
+                btn.classList.add('correct');
+                updateHangmanDisplay();
+                if (gameData.currentWord.split('').every(c => gameData.guessed.includes(c))) {
+                    gameData.score++;
+                    document.getElementById('hangmanScore').textContent = gameData.score;
+                    setTimeout(() => {
+                        gameData.current++;
+                        if (gameData.current >= 8) {
+                            showResults(gameData.score, 8, gameData.score >= 7 ? '¡Increíble! 🎯' : '¡Sigue practicando! 💪');
+                        } else { showHangmanWord(); }
+                    }, 1000);
+                }
+            } else {
+                btn.classList.add('wrong');
+                gameData.errors++;
+                document.getElementById('hangmanDrawing').textContent = hangmanStages[Math.min(gameData.errors, 6)];
+                if (gameData.errors >= gameData.maxErrors) {
+                    document.getElementById('hangmanWord').textContent = gameData.currentWord.toUpperCase().split('').join(' ');
+                    setTimeout(() => {
+                        gameData.current++;
+                        if (gameData.current >= 8) {
+                            showResults(gameData.score, 8, gameData.score >= 5 ? '¡Muy bien! 👍' : '¡Sigue practicando! 💪');
+                        } else { showHangmanWord(); }
+                    }, 2000);
+                }
+            }
+        }
+
+        // SCRAMBLE
+        function initScramble() {
+            document.getElementById('scrambleGame').classList.add('active');
+            gameData = { words: shuffle(vocabulary).slice(0, 10), current: 0, score: 0 };
+            const input = document.getElementById('scrambleInput');
+            input.value = '';
+            input.oninput = checkScrambleAnswer;
+            input.focus();
+            showScrambleWord();
+        }
+
+        function scrambleWord(word) {
+            const cleaned = word.replace(/\s+/g, '').toLowerCase();
+            let scrambled = cleaned.split('');
+            for (let i = scrambled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [scrambled[i], scrambled[j]] = [scrambled[j], scrambled[i]];
+            }
+            if (scrambled.join('') === cleaned) scrambled.reverse();
+            return scrambled.join('').toUpperCase();
+        }
+
+        function showScrambleWord() {
+            const word = gameData.words[gameData.current];
+            gameData.currentAnswer = word.es.toLowerCase();
+            document.getElementById('scrambleHint').textContent = '🇩🇪 ' + word.de;
+            document.getElementById('scrambleWord').textContent = scrambleWord(word.es);
+            document.getElementById('scrambleCurrent').textContent = gameData.current + 1;
+            document.getElementById('scrambleScore').textContent = gameData.score;
+            document.getElementById('scrambleFeedback').textContent = '';
+            document.getElementById('scrambleInput').value = '';
+            document.getElementById('scrambleInput').focus();
+        }
+
+        function checkScrambleAnswer() {
+            if (document.getElementById('scrambleInput').value.toLowerCase().trim() === gameData.currentAnswer) {
+                gameData.score++;
+                document.getElementById('scrambleScore').textContent = gameData.score;
+                document.getElementById('scrambleFeedback').textContent = '✓ ¡Correcto!';
+                document.getElementById('scrambleFeedback').className = 'speed-feedback correct';
+                setTimeout(() => {
+                    gameData.current++;
+                    if (gameData.current >= 10) {
+                        showResults(gameData.score, 10, gameData.score >= 9 ? '¡Excelente! 🔀' : '¡Sigue practicando! 💪');
+                    } else { showScrambleWord(); }
+                }, 800);
+            }
+        }
+
+        // DUEL
+        function initDuel() {
+            document.getElementById('duelGame').classList.add('active');
+            gameData = { questions: shuffle(vocabulary).slice(0, 10), current: 0, scores: [0, 0], buzzed: null, answered: false };
+            document.getElementById('duelScore1').textContent = '0';
+            document.getElementById('duelScore2').textContent = '0';
+            document.getElementById('buzz1').disabled = false;
+            document.getElementById('buzz2').disabled = false;
+            document.getElementById('duelAnswerSection').classList.remove('active');
+            showDuelQuestion();
+        }
+
+        function showDuelQuestion() {
+            const q = gameData.questions[gameData.current];
+            const direction = Math.random() > 0.5;
+            gameData.questionText = direction ? q.es : q.de;
+            gameData.correctAnswer = direction ? q.de : q.es;
+            gameData.direction = direction;
+            gameData.buzzed = null;
+            gameData.answered = false;
+            document.getElementById('duelQuestion').textContent = gameData.questionText;
+            document.getElementById('duelLang').textContent = direction ? '🇪🇸 → 🇩🇪' : '🇩🇪 → 🇪🇸';
+            document.getElementById('duelRound').textContent = gameData.current + 1;
+            document.getElementById('buzz1').disabled = false;
+            document.getElementById('buzz2').disabled = false;
+            document.getElementById('duelAnswerSection').classList.remove('active');
+            document.querySelector('.duel-player.player1').classList.remove('duel-active');
+            document.querySelector('.duel-player.player2').classList.remove('duel-active');
+        }
+
+        function duelBuzz(player) {
+            if (gameData.buzzed !== null) return;
+            gameData.buzzed = player;
+            document.getElementById('buzz1').disabled = true;
+            document.getElementById('buzz2').disabled = true;
+            document.querySelector(`.duel-player.player${player}`).classList.add('duel-active');
+            document.getElementById('duelActivePlayer').textContent = `Jugador ${player}`;
+            
+            const pool = gameData.direction ? vocabulary.map(v => v.de) : vocabulary.map(v => v.es);
+            const options = createShuffledOptions(gameData.correctAnswer, pool, 4);
+            
+            const container = document.getElementById('duelOptions');
+            container.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = opt;
+                btn.onclick = () => checkDuelAnswer(opt);
+                container.appendChild(btn);
+            });
+            document.getElementById('duelAnswerSection').classList.add('active');
+        }
+
+        function checkDuelAnswer(answer) {
+            if (gameData.answered) return;
+            gameData.answered = true;
+            const correct = answer === gameData.correctAnswer;
+            document.querySelectorAll('#duelOptions .quiz-option').forEach(opt => {
+                if (opt.textContent === gameData.correctAnswer) opt.classList.add('correct');
+                else if (opt.textContent === answer && !correct) opt.classList.add('wrong');
+            });
+            if (correct) gameData.scores[gameData.buzzed - 1]++;
+            else gameData.scores[gameData.buzzed === 1 ? 1 : 0]++;
+            document.getElementById('duelScore1').textContent = gameData.scores[0];
+            document.getElementById('duelScore2').textContent = gameData.scores[1];
+            setTimeout(() => {
+                gameData.current++;
+                if (gameData.current >= 10) {
+                    const winner = gameData.scores[0] > gameData.scores[1] ? '¡Jugador 1 gana! 🏆' :
+                                   gameData.scores[1] > gameData.scores[0] ? '¡Jugador 2 gana! 🏆' : '¡Empate! 🤝';
+                    showResults(Math.max(...gameData.scores), 10, winner);
+                } else { showDuelQuestion(); }
+            }, 1500);
+        }
+
+        // CLOZE
+        function initCloze() {
+            document.getElementById('clozeGame').classList.add('active');
+            gameData = { texts: shuffle([...clozeTexts]), current: 0, totalCorrect: 0, selectedWord: null, selectedGap: null, userAnswers: {} };
+            showClozeText();
+        }
+
+        function showClozeText() {
+            const textData = gameData.texts[gameData.current];
+            gameData.userAnswers = {};
+            gameData.selectedWord = null;
+            gameData.selectedGap = null;
+            document.getElementById('clozeTextNum').textContent = gameData.current + 1;
+            document.getElementById('clozeCorrect').textContent = gameData.totalCorrect;
+            
+            const wordbank = document.getElementById('clozeWordbank');
+            wordbank.innerHTML = '<h4>📚 Banco de palabras</h4>';
+            shuffle(Object.values(textData.gaps)).forEach(word => {
+                const span = document.createElement('span');
+                span.className = 'cloze-word';
+                span.textContent = word;
+                span.onclick = () => selectClozeWord(span, word);
+                wordbank.appendChild(span);
+            });
+            
+            let html = textData.text;
+            for (let i = 1; i <= 10; i++) {
+                html = html.replace(`[${i}]`, `<span class="cloze-gap" data-gap="${i}" onclick="selectClozeGap(this, ${i})"><span class="gap-number">(${i})</span></span>`);
+            }
+            document.getElementById('clozeText').innerHTML = html;
+            document.getElementById('clozeCheckBtn').style.display = 'block';
+            document.getElementById('clozeProgress').textContent = `Texto ${gameData.current + 1} de ${gameData.texts.length}`;
+        }
+
+        function selectClozeWord(element, word) {
+            if (element.classList.contains('used')) return;
+            document.querySelectorAll('.cloze-word').forEach(w => w.classList.remove('selected'));
+            element.classList.add('selected');
+            gameData.selectedWord = word;
+            gameData.selectedWordElement = element;
+            if (gameData.selectedGap !== null) fillGap();
+        }
+
+        function selectClozeGap(element, gapNum) {
+            if (element.classList.contains('correct') || element.classList.contains('wrong')) return;
+            if (element.classList.contains('filled')) {
+                const oldWord = gameData.userAnswers[gapNum];
+                delete gameData.userAnswers[gapNum];
+                element.classList.remove('filled');
+                element.innerHTML = `<span class="gap-number">(${gapNum})</span>`;
+                document.querySelectorAll('.cloze-word').forEach(w => {
+                    if (w.textContent === oldWord) w.classList.remove('used');
+                });
+                return;
+            }
+            document.querySelectorAll('.cloze-gap').forEach(g => g.classList.remove('selected'));
+            element.classList.add('selected');
+            gameData.selectedGap = gapNum;
+            gameData.selectedGapElement = element;
+            if (gameData.selectedWord !== null) fillGap();
+        }
+
+        function fillGap() {
+            if (gameData.selectedWord === null || gameData.selectedGap === null) return;
+            gameData.userAnswers[gameData.selectedGap] = gameData.selectedWord;
+            gameData.selectedGapElement.innerHTML = gameData.selectedWord;
+            gameData.selectedGapElement.classList.add('filled');
+            gameData.selectedGapElement.classList.remove('selected');
+            gameData.selectedWordElement.classList.add('used');
+            gameData.selectedWordElement.classList.remove('selected');
+            gameData.selectedWord = null;
+            gameData.selectedGap = null;
+        }
+
+        function checkCloze() {
+            const textData = gameData.texts[gameData.current];
+            let correct = 0;
+            document.querySelectorAll('.cloze-gap').forEach(gap => {
+                const gapNum = parseInt(gap.dataset.gap);
+                if (gameData.userAnswers[gapNum] === textData.gaps[gapNum]) {
+                    gap.classList.add('correct');
+                    correct++;
+                } else {
+                    gap.classList.add('wrong');
+                    gap.innerHTML = textData.gaps[gapNum];
+                }
+            });
+            gameData.totalCorrect += correct;
+            document.getElementById('clozeCorrect').textContent = gameData.totalCorrect;
+            document.getElementById('clozeCheckBtn').style.display = 'none';
+        }
+
+        function prevClozeText() { if (gameData.current > 0) { gameData.current--; showClozeText(); } }
+        function nextClozeText() {
+            gameData.current++;
+            if (gameData.current >= gameData.texts.length) {
+                showResults(gameData.totalCorrect, gameData.texts.length * 10, gameData.totalCorrect >= 45 ? '¡Excelente! 📚' : '¡Sigue practicando! 💪');
+            } else { showClozeText(); }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (currentGame === 'speed') {
+                    const input = document.getElementById('speedInput');
+                    if (input.value.trim() === '') {
+                        clearTimeout(gameData.hintTimeout);
+                        document.getElementById('speedFeedback').textContent = '✗ ' + gameData.words[gameData.current].es;
+                        document.getElementById('speedFeedback').className = 'speed-feedback wrong';
+                        setTimeout(() => {
+                            gameData.current++;
+                            if (gameData.current >= 10) { clearInterval(gameData.timer); showResults(gameData.score, 10, '¡Sigue practicando! 💪'); }
+                            else { showSpeedWord(); }
+                        }, 1500);
+                    }
+                }
+                if (currentGame === 'scramble') {
+                    const input = document.getElementById('scrambleInput');
+                    if (input.value.trim() === '' || input.value.toLowerCase().trim() !== gameData.currentAnswer) {
+                        document.getElementById('scrambleFeedback').textContent = '✗ ' + gameData.currentAnswer;
+                        document.getElementById('scrambleFeedback').className = 'speed-feedback wrong';
+                        setTimeout(() => {
+                            gameData.current++;
+                            if (gameData.current >= 10) { showResults(gameData.score, 10, '¡Sigue practicando! 💪'); }
+                            else { showScrambleWord(); }
+                        }, 1500);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
