@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Frases en el aula! – Übungsspiel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #E63946;
+            --primary-dark: #C1121F;
+            --secondary: #F4A261;
+            --accent: #2A9D8F;
+            --accent-light: #40B4A6;
+            --dark: #1D3557;
+            --light: #F1FAEE;
+            --gold: #E9C46A;
+            --shadow: 0 4px 20px rgba(29, 53, 87, 0.15);
+            --shadow-lg: 0 8px 40px rgba(29, 53, 87, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #1D3557 0%, #457B9D 50%, #1D3557 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 30px 0;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            color: var(--light);
+            text-shadow: 3px 3px 0 var(--primary), 6px 6px 0 rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: var(--gold);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Score Display */
+        .score-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .score-item {
+            background: var(--light);
+            padding: 12px 25px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow);
+            font-weight: 600;
+        }
+
+        .score-item .icon {
+            font-size: 1.4rem;
+        }
+
+        .score-value {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        /* Game Container */
+        .game-container {
+            background: var(--light);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--gold), var(--accent));
+        }
+
+        /* Menu Screen */
+        .menu-screen {
+            text-align: center;
+        }
+
+        .menu-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+            margin-bottom: 30px;
+        }
+
+        .game-modes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .mode-card {
+            background: white;
+            border: 3px solid transparent;
+            border-radius: 20px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .mode-card.quiz { border-color: var(--primary); }
+        .mode-card.quiz:hover { background: rgba(230, 57, 70, 0.05); }
+        .mode-card.memory { border-color: var(--accent); }
+        .mode-card.memory:hover { background: rgba(42, 157, 143, 0.05); }
+        .mode-card.speed { border-color: var(--secondary); }
+        .mode-card.speed:hover { background: rgba(244, 162, 97, 0.05); }
+
+        .mode-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .mode-name {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .mode-desc {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .difficulty-select {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #ddd;
+        }
+
+        .difficulty-label {
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .diff-btn {
+            padding: 10px 25px;
+            border: 2px solid var(--dark);
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .diff-btn:hover, .diff-btn.active {
+            background: var(--dark);
+            color: white;
+        }
+
+        /* Quiz Mode */
+        .quiz-screen {
+            display: none;
+        }
+
+        .question-counter {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        .situation-box {
+            background: linear-gradient(135deg, var(--dark) 0%, #2a4a6d 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .situation-label {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold);
+            color: var(--dark);
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .situation-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+        }
+
+        .answer-options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .answer-btn {
+            padding: 20px 25px;
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1.1rem;
+            font-family: 'Nunito', sans-serif;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .answer-btn:hover:not(.disabled) {
+            border-color: var(--accent);
+            background: rgba(42, 157, 143, 0.05);
+            transform: translateX(5px);
+        }
+
+        .answer-btn.correct {
+            border-color: var(--accent);
+            background: rgba(42, 157, 143, 0.15);
+            animation: correctPulse 0.5s ease;
+        }
+
+        .answer-btn.wrong {
+            border-color: var(--primary);
+            background: rgba(230, 57, 70, 0.15);
+            animation: shake 0.5s ease;
+        }
+
+        .answer-btn.disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Memory Mode */
+        .memory-screen {
+            display: none;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, var(--dark), #2a4a6d);
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            transition: transform 0.3s ease;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .memory-card:hover:not(.flipped):not(.matched) {
+            transform: scale(1.05);
+        }
+
+        .memory-card .card-front,
+        .memory-card .card-back {
+            position: absolute;
+            inset: 0;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backface-visibility: hidden;
+            transition: transform 0.4s ease;
+        }
+
+        .memory-card .card-front {
+            background: linear-gradient(135deg, var(--dark), #2a4a6d);
+            font-size: 2rem;
+        }
+
+        .memory-card .card-back {
+            background: white;
+            transform: rotateY(180deg);
+            padding: 10px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--dark);
+            font-weight: 600;
+            border: 3px solid var(--accent);
+            line-height: 1.3;
+        }
+
+        .memory-card.flipped .card-front {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.flipped .card-back {
+            transform: rotateY(0);
+        }
+
+        .memory-card.matched {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+        }
+
+        .memory-card.es .card-back {
+            border-color: var(--primary);
+            background: rgba(230, 57, 70, 0.1);
+        }
+
+        .memory-card.de .card-back {
+            border-color: var(--accent);
+            background: rgba(42, 157, 143, 0.1);
+        }
+
+        .memory-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .memory-stat {
+            text-align: center;
+        }
+
+        .memory-stat-value {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .memory-stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Speed Mode */
+        .speed-screen {
+            display: none;
+        }
+
+        .speed-timer {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .timer-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) 0deg, #e0e0e0 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .timer-inner {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5rem;
+            color: var(--dark);
+        }
+
+        .speed-phrase {
+            background: linear-gradient(135deg, var(--secondary), var(--gold));
+            padding: 25px 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .speed-phrase-text {
+            font-size: 1.4rem;
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        .speed-phrase-hint {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .speed-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .speed-btn {
+            padding: 20px;
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .speed-btn:hover:not(.disabled) {
+            border-color: var(--accent);
+            transform: scale(1.02);
+        }
+
+        .speed-btn.correct {
+            border-color: var(--accent);
+            background: rgba(42, 157, 143, 0.2);
+        }
+
+        .speed-btn.wrong {
+            border-color: var(--primary);
+            background: rgba(230, 57, 70, 0.2);
+        }
+
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .result-emoji {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .result-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .result-score {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .result-score strong {
+            color: var(--primary);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.6rem;
+        }
+
+        .result-stars {
+            font-size: 3rem;
+            margin-bottom: 30px;
+        }
+
+        .star {
+            color: #ddd;
+            transition: color 0.3s ease;
+        }
+
+        .star.filled {
+            color: var(--gold);
+            animation: starPop 0.4s ease backwards;
+        }
+
+        .star:nth-child(1) { animation-delay: 0.2s; }
+        .star:nth-child(2) { animation-delay: 0.4s; }
+        .star:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes starPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(230, 57, 70, 0.5);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 3px solid var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark);
+            color: white;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Back button */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease;
+            z-index: 10;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Feedback toast */
+        .feedback-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--dark);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .feedback-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .feedback-toast.success {
+            background: var(--accent);
+        }
+
+        .feedback-toast.error {
+            background: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 25px 20px;
+                border-radius: 20px;
+            }
+
+            .memory-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+
+            .speed-options {
+                grid-template-columns: 1fr;
+            }
+
+            .situation-text {
+                font-size: 1.1rem;
+            }
+
+            .answer-btn {
+                font-size: 1rem;
+                padding: 15px 20px;
+            }
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>¡Frases en el aula!</h1>
+            <p class="subtitle">Übungsspiel für Klasse 10</p>
+        </header>
+
+        <div class="score-bar">
+            <div class="score-item">
+                <span class="icon">⭐</span>
+                <span>Punkte: <span class="score-value" id="total-score">0</span></span>
+            </div>
+            <div class="score-item">
+                <span class="icon">🔥</span>
+                <span>Serie: <span class="score-value" id="streak">0</span></span>
+            </div>
+        </div>
+
+        <div class="game-container">
+            <!-- Menu Screen -->
+            <div class="menu-screen" id="menu-screen">
+                <h2 class="menu-title">Wähle einen Spielmodus</h2>
+                <div class="game-modes">
+                    <div class="mode-card quiz" onclick="startGame('quiz')">
+                        <div class="mode-icon">🎯</div>
+                        <div class="mode-name">¿Qué dices?</div>
+                        <div class="mode-desc">Wähle die richtige Phrase für jede Situation</div>
+                    </div>
+                    <div class="mode-card memory" onclick="startGame('memory')">
+                        <div class="mode-icon">🧠</div>
+                        <div class="mode-name">Memoria</div>
+                        <div class="mode-desc">Finde die passenden Deutsch-Spanisch Paare</div>
+                    </div>
+                    <div class="mode-card speed" onclick="startGame('speed')">
+                        <div class="mode-icon">⚡</div>
+                        <div class="mode-name">¡Rápido!</div>
+                        <div class="mode-desc">Ordne so schnell wie möglich zu!</div>
+                    </div>
+                </div>
+                <div class="difficulty-select">
+                    <div class="difficulty-label">Schwierigkeitsgrad:</div>
+                    <div class="difficulty-buttons">
+                        <button class="diff-btn" onclick="setDifficulty('easy')">⭐ Leicht</button>
+                        <button class="diff-btn active" onclick="setDifficulty('medium')">⭐⭐ Mittel</button>
+                        <button class="diff-btn" onclick="setDifficulty('hard')">⭐⭐⭐ Schwer</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div class="quiz-screen" id="quiz-screen">
+                <button class="back-btn" onclick="showMenu()">←</button>
+                <div class="question-counter">Frage <span id="q-current">1</span> von <span id="q-total">10</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="quiz-progress" style="width: 0%"></div>
+                </div>
+                <div class="situation-box">
+                    <span class="situation-label">📍 Situation</span>
+                    <p class="situation-text" id="situation-text"></p>
+                </div>
+                <div class="answer-options" id="answer-options"></div>
+            </div>
+
+            <!-- Memory Screen -->
+            <div class="memory-screen" id="memory-screen">
+                <button class="back-btn" onclick="showMenu()">←</button>
+                <div class="memory-stats">
+                    <div class="memory-stat">
+                        <div class="memory-stat-value" id="memory-moves">0</div>
+                        <div class="memory-stat-label">Züge</div>
+                    </div>
+                    <div class="memory-stat">
+                        <div class="memory-stat-value" id="memory-pairs">0</div>
+                        <div class="memory-stat-label">Paare gefunden</div>
+                    </div>
+                </div>
+                <div class="memory-grid" id="memory-grid"></div>
+            </div>
+
+            <!-- Speed Screen -->
+            <div class="speed-screen" id="speed-screen">
+                <button class="back-btn" onclick="showMenu()">←</button>
+                <div class="speed-timer">
+                    <div class="timer-circle" id="timer-circle">
+                        <div class="timer-inner" id="timer-value">30</div>
+                    </div>
+                </div>
+                <div class="speed-phrase">
+                    <p class="speed-phrase-text" id="speed-phrase"></p>
+                    <p class="speed-phrase-hint" id="speed-hint"></p>
+                </div>
+                <div class="speed-options" id="speed-options"></div>
+            </div>
+
+            <!-- Result Screen -->
+            <div class="result-screen" id="result-screen">
+                <div class="result-emoji" id="result-emoji">🎉</div>
+                <h2 class="result-title" id="result-title">¡Muy bien!</h2>
+                <p class="result-score" id="result-text"></p>
+                <div class="result-stars" id="result-stars">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="restartGame()">🔄 Nochmal</button>
+                    <button class="btn btn-secondary" onclick="showMenu()">📋 Menü</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="feedback-toast" id="feedback-toast"></div>
+
+    <script>
+        // Phrase Data
+        const phrases = [
+            { es: "¿Puedo ir al baño?", de: "Darf ich auf die Toilette gehen?", situation: "Du musst auf die Toilette." },
+            { es: "He olvidado el libro.", de: "Ich habe das Buch vergessen.", situation: "Du hast dein Buch zu Hause vergessen." },
+            { es: "¿Puede hablar más despacio?", de: "Können Sie langsamer sprechen?", situation: "Die Lehrerin spricht zu schnell." },
+            { es: "¿Cómo se dice ... en español?", de: "Wie sagt man ... auf Spanisch?", situation: "Du weißt nicht, wie man ein Wort auf Spanisch sagt." },
+            { es: "¿Qué significa esta palabra?", de: "Was bedeutet dieses Wort?", situation: "Du möchtest wissen, was ein Wort bedeutet." },
+            { es: "No entiendo.", de: "Ich verstehe nicht.", situation: "Du hast etwas nicht verstanden." },
+            { es: "¿Puede repetir, por favor?", de: "Können Sie das bitte wiederholen?", situation: "Du hast etwas nicht mitbekommen." },
+            { es: "¿En qué página estamos?", de: "Auf welcher Seite sind wir?", situation: "Du weißt nicht, auf welcher Seite ihr seid." },
+            { es: "Tengo una pregunta.", de: "Ich habe eine Frage.", situation: "Du möchtest der Lehrerin eine Frage stellen." },
+            { es: "¿Me prestas un bolígrafo?", de: "Leihst du mir einen Kugelschreiber?", situation: "Du brauchst einen Kugelschreiber von deinem Nachbarn." },
+            { es: "He terminado.", de: "Ich bin fertig.", situation: "Du hast die Aufgabe beendet." },
+            { es: "¿Habéis entendido?", de: "Habt ihr verstanden?", situation: "Die Lehrerin fragt, ob alle verstanden haben." },
+            { es: "Abrid el libro.", de: "Öffnet das Buch.", situation: "Die Lehrerin möchte, dass ihr das Buch öffnet." },
+            { es: "Trabajad en parejas.", de: "Arbeitet zu zweit.", situation: "Die Lehrerin möchte Partnerarbeit." },
+            { es: "¿Alguna pregunta?", de: "Irgendwelche Fragen?", situation: "Die Lehrerin fragt nach Fragen." },
+            { es: "He olvidado los deberes.", de: "Ich habe die Hausaufgaben vergessen.", situation: "Du hast die Hausaufgaben nicht gemacht." },
+            { es: "¿Cómo se escribe?", de: "Wie schreibt man das?", situation: "Du möchtest wissen, wie man ein Wort schreibt." },
+            { es: "Perdone, no lo sé.", de: "Entschuldigung, ich weiß es nicht.", situation: "Du wirst gefragt, kennst aber die Antwort nicht." },
+            { es: "¿Puedo salir un momento?", de: "Darf ich kurz rausgehen?", situation: "Du musst kurz den Raum verlassen." },
+            { es: "¿Es correcto?", de: "Ist das richtig?", situation: "Du möchtest wissen, ob deine Antwort stimmt." }
+        ];
+
+        // Game State
+        let gameState = {
+            mode: null,
+            difficulty: 'medium',
+            score: 0,
+            streak: 0,
+            currentQuestion: 0,
+            questions: [],
+            memoryCards: [],
+            flippedCards: [],
+            matchedPairs: 0,
+            moves: 0,
+            speedTimer: null,
+            speedTimeLeft: 30,
+            speedCorrect: 0,
+            speedTotal: 0
+        };
+
+        // Difficulty settings
+        const difficultySettings = {
+            easy: { questions: 5, memoryPairs: 4, speedTime: 45 },
+            medium: { questions: 8, memoryPairs: 6, speedTime: 30 },
+            hard: { questions: 12, memoryPairs: 8, speedTime: 20 }
+        };
+
+        // Utility functions
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('feedback-toast');
+            toast.textContent = message;
+            toast.className = 'feedback-toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function updateScore(points) {
+            gameState.score += points;
+            document.getElementById('total-score').textContent = gameState.score;
+        }
+
+        function updateStreak(correct) {
+            if (correct) {
+                gameState.streak++;
+            } else {
+                gameState.streak = 0;
+            }
+            document.getElementById('streak').textContent = gameState.streak;
+        }
+
+        // Screen management
+        function hideAllScreens() {
+            document.querySelectorAll('.menu-screen, .quiz-screen, .memory-screen, .speed-screen, .result-screen')
+                .forEach(el => el.style.display = 'none');
+        }
+
+        function showMenu() {
+            hideAllScreens();
+            document.getElementById('menu-screen').style.display = 'block';
+            if (gameState.speedTimer) {
+                clearInterval(gameState.speedTimer);
+                gameState.speedTimer = null;
+            }
+        }
+
+        function setDifficulty(level) {
+            gameState.difficulty = level;
+            document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Start Game
+        function startGame(mode) {
+            gameState.mode = mode;
+            hideAllScreens();
+            
+            switch(mode) {
+                case 'quiz':
+                    initQuiz();
+                    document.getElementById('quiz-screen').style.display = 'block';
+                    break;
+                case 'memory':
+                    initMemory();
+                    document.getElementById('memory-screen').style.display = 'block';
+                    break;
+                case 'speed':
+                    initSpeed();
+                    document.getElementById('speed-screen').style.display = 'block';
+                    break;
+            }
+        }
+
+        function restartGame() {
+            startGame(gameState.mode);
+        }
+
+        // Quiz Mode
+        function initQuiz() {
+            const settings = difficultySettings[gameState.difficulty];
+            gameState.currentQuestion = 0;
+            gameState.questions = shuffle(phrases).slice(0, settings.questions);
+            
+            document.getElementById('q-total').textContent = settings.questions;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = gameState.questions[gameState.currentQuestion];
+            const total = gameState.questions.length;
+            
+            document.getElementById('q-current').textContent = gameState.currentQuestion + 1;
+            document.getElementById('quiz-progress').style.width = `${(gameState.currentQuestion / total) * 100}%`;
+            document.getElementById('situation-text').textContent = q.situation;
+            
+            // Generate options
+            const wrongOptions = shuffle(phrases.filter(p => p.es !== q.es)).slice(0, 3);
+            const options = shuffle([q, ...wrongOptions]);
+            
+            const optionsContainer = document.getElementById('answer-options');
+            optionsContainer.innerHTML = options.map((opt, i) => `
+                <button class="answer-btn" onclick="checkAnswer(this, ${opt.es === q.es})">${opt.es}</button>
+            `).join('');
+        }
+
+        function checkAnswer(btn, correct) {
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(b => {
+                b.classList.add('disabled');
+                b.onclick = null;
+            });
+            
+            if (correct) {
+                btn.classList.add('correct');
+                updateScore(10 + gameState.streak * 2);
+                updateStreak(true);
+                showToast('¡Correcto! +' + (10 + (gameState.streak - 1) * 2) + ' Punkte');
+            } else {
+                btn.classList.add('wrong');
+                updateStreak(false);
+                showToast('Leider falsch!', 'error');
+                // Show correct answer
+                buttons.forEach(b => {
+                    if (b.textContent === gameState.questions[gameState.currentQuestion].es) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+            
+            setTimeout(() => {
+                gameState.currentQuestion++;
+                if (gameState.currentQuestion < gameState.questions.length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1500);
+        }
+
+        // Memory Mode
+        function initMemory() {
+            const settings = difficultySettings[gameState.difficulty];
+            gameState.matchedPairs = 0;
+            gameState.moves = 0;
+            gameState.flippedCards = [];
+            
+            const selectedPhrases = shuffle(phrases).slice(0, settings.memoryPairs);
+            gameState.memoryCards = shuffle([
+                ...selectedPhrases.map((p, i) => ({ id: i, type: 'es', text: p.es, pairId: i })),
+                ...selectedPhrases.map((p, i) => ({ id: i + settings.memoryPairs, type: 'de', text: p.de, pairId: i }))
+            ]);
+            
+            document.getElementById('memory-moves').textContent = 0;
+            document.getElementById('memory-pairs').textContent = `0/${settings.memoryPairs}`;
+            
+            const grid = document.getElementById('memory-grid');
+            grid.innerHTML = gameState.memoryCards.map((card, i) => `
+                <div class="memory-card ${card.type}" data-index="${i}" onclick="flipCard(this)">
+                    <div class="card-front">❓</div>
+                    <div class="card-back">${card.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function flipCard(element) {
+            const index = parseInt(element.dataset.index);
+            const card = gameState.memoryCards[index];
+            
+            if (element.classList.contains('flipped') || element.classList.contains('matched') || gameState.flippedCards.length >= 2) {
+                return;
+            }
+            
+            element.classList.add('flipped');
+            gameState.flippedCards.push({ element, card });
+            
+            if (gameState.flippedCards.length === 2) {
+                gameState.moves++;
+                document.getElementById('memory-moves').textContent = gameState.moves;
+                
+                const [first, second] = gameState.flippedCards;
+                
+                if (first.card.pairId === second.card.pairId && first.card.type !== second.card.type) {
+                    // Match!
+                    setTimeout(() => {
+                        first.element.classList.add('matched');
+                        second.element.classList.add('matched');
+                        gameState.matchedPairs++;
+                        updateScore(15);
+                        updateStreak(true);
+                        
+                        const settings = difficultySettings[gameState.difficulty];
+                        document.getElementById('memory-pairs').textContent = `${gameState.matchedPairs}/${settings.memoryPairs}`;
+                        
+                        if (gameState.matchedPairs === settings.memoryPairs) {
+                            setTimeout(showResults, 500);
+                        }
+                    }, 300);
+                } else {
+                    // No match
+                    updateStreak(false);
+                    setTimeout(() => {
+                        first.element.classList.remove('flipped');
+                        second.element.classList.remove('flipped');
+                    }, 1000);
+                }
+                
+                setTimeout(() => {
+                    gameState.flippedCards = [];
+                }, 300);
+            }
+        }
+
+        // Speed Mode
+        function initSpeed() {
+            const settings = difficultySettings[gameState.difficulty];
+            gameState.speedTimeLeft = settings.speedTime;
+            gameState.speedCorrect = 0;
+            gameState.speedTotal = 0;
+            
+            document.getElementById('timer-value').textContent = settings.speedTime;
+            
+            showSpeedQuestion();
+            startSpeedTimer();
+        }
+
+        function startSpeedTimer() {
+            const settings = difficultySettings[gameState.difficulty];
+            const totalTime = settings.speedTime;
+            
+            gameState.speedTimer = setInterval(() => {
+                gameState.speedTimeLeft--;
+                document.getElementById('timer-value').textContent = gameState.speedTimeLeft;
+                
+                const progress = (gameState.speedTimeLeft / totalTime) * 360;
+                document.getElementById('timer-circle').style.background = 
+                    `conic-gradient(var(--primary) ${progress}deg, #e0e0e0 ${progress}deg)`;
+                
+                if (gameState.speedTimeLeft <= 0) {
+                    clearInterval(gameState.speedTimer);
+                    gameState.speedTimer = null;
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        function showSpeedQuestion() {
+            const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+            const isSpanishToGerman = Math.random() > 0.5;
+            
+            gameState.currentSpeedPhrase = phrase;
+            gameState.speedDirection = isSpanishToGerman;
+            
+            if (isSpanishToGerman) {
+                document.getElementById('speed-phrase').textContent = phrase.es;
+                document.getElementById('speed-hint').textContent = '→ Finde die deutsche Übersetzung';
+            } else {
+                document.getElementById('speed-phrase').textContent = phrase.de;
+                document.getElementById('speed-hint').textContent = '→ Encuentra la traducción española';
+            }
+            
+            const wrongOptions = shuffle(phrases.filter(p => p.es !== phrase.es)).slice(0, 3);
+            const options = shuffle([phrase, ...wrongOptions]);
+            
+            const optionsContainer = document.getElementById('speed-options');
+            optionsContainer.innerHTML = options.map(opt => `
+                <button class="speed-btn" onclick="checkSpeedAnswer(this, ${opt.es === phrase.es})">
+                    ${isSpanishToGerman ? opt.de : opt.es}
+                </button>
+            `).join('');
+        }
+
+        function checkSpeedAnswer(btn, correct) {
+            gameState.speedTotal++;
+            
+            const buttons = document.querySelectorAll('.speed-btn');
+            buttons.forEach(b => {
+                b.classList.add('disabled');
+                b.onclick = null;
+            });
+            
+            if (correct) {
+                btn.classList.add('correct');
+                gameState.speedCorrect++;
+                updateScore(5 + gameState.streak);
+                updateStreak(true);
+            } else {
+                btn.classList.add('wrong');
+                updateStreak(false);
+            }
+            
+            setTimeout(() => {
+                if (gameState.speedTimeLeft > 0) {
+                    showSpeedQuestion();
+                }
+            }, 500);
+        }
+
+        // Results
+        function showResults() {
+            hideAllScreens();
+            document.getElementById('result-screen').style.display = 'block';
+            
+            let emoji, title, text, stars;
+            
+            switch(gameState.mode) {
+                case 'quiz':
+                    const quizPercent = (gameState.score / (gameState.questions.length * 15)) * 100;
+                    stars = quizPercent >= 90 ? 3 : quizPercent >= 60 ? 2 : 1;
+                    emoji = stars === 3 ? '🏆' : stars === 2 ? '👏' : '💪';
+                    title = stars === 3 ? '¡Excelente!' : stars === 2 ? '¡Muy bien!' : '¡Sigue practicando!';
+                    text = `Du hast <strong>${gameState.score}</strong> Punkte erreicht!`;
+                    break;
+                    
+                case 'memory':
+                    const memoryPercent = 100 - (gameState.moves / (difficultySettings[gameState.difficulty].memoryPairs * 3)) * 100;
+                    stars = memoryPercent >= 80 ? 3 : memoryPercent >= 50 ? 2 : 1;
+                    emoji = stars === 3 ? '🧠' : stars === 2 ? '👍' : '🎮';
+                    title = stars === 3 ? '¡Memoria increíble!' : stars === 2 ? '¡Bien hecho!' : '¡Buen intento!';
+                    text = `${gameState.matchedPairs} Paare in <strong>${gameState.moves}</strong> Zügen gefunden!`;
+                    break;
+                    
+                case 'speed':
+                    const speedPercent = gameState.speedTotal > 0 ? (gameState.speedCorrect / gameState.speedTotal) * 100 : 0;
+                    stars = speedPercent >= 80 ? 3 : speedPercent >= 50 ? 2 : 1;
+                    emoji = stars === 3 ? '⚡' : stars === 2 ? '🔥' : '🚀';
+                    title = stars === 3 ? '¡Rapidísimo!' : stars === 2 ? '¡Buen ritmo!' : '¡Sigue así!';
+                    text = `<strong>${gameState.speedCorrect}</strong> von <strong>${gameState.speedTotal}</strong> richtig!`;
+                    break;
+            }
+            
+            document.getElementById('result-emoji').textContent = emoji;
+            document.getElementById('result-title').textContent = title;
+            document.getElementById('result-text').innerHTML = text;
+            
+            const starElements = document.querySelectorAll('#result-stars .star');
+            starElements.forEach((star, i) => {
+                star.classList.toggle('filled', i < stars);
+            });
+        }
+
+        // Initialize
+        showMenu();
+    </script>
+</body>
+</html>
